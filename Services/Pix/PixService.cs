@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using rybank.Dto.Pix;
 using rybank.Enums;
 using rybank.estudo.Data;
 using rybank.estudo.Interfaces;
@@ -80,6 +81,34 @@ namespace rybank.Services
                 CreatedAt = newChave.CreatedAt
             };
             
+        }
+
+        public async Task<List<PixResponseDto>> Consultar(string email)
+        {
+            var user = await _authService.FindByEmail(email);
+
+            if (user == null)
+            {
+                throw new InvalidOperationException("Não encontrada a conta.");
+            }
+
+            var existsPix = await FindPixById(user.Id);
+
+            if (existsPix == null)
+            {
+                throw new InvalidOperationException("Não encontrada a conta.");
+            }
+
+            var chaves = await _db.Pix.Where(pix => pix.UsuarioId == user.Id).Select(pix => new PixResponseDto
+            {
+                Id = pix.Id,
+                Chave = pix.Chave,
+                TipoChave = pix.TipoChave.ToString(),
+                Status = pix.Status.ToString(),
+                CreatedAt = pix.CreatedAt
+            }).ToListAsync();
+
+            return chaves;
         }
     }
 }

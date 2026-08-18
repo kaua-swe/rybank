@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using rybank.Dto;
+using rybank.Dto.Pix;
 using rybank.Interfaces;
 
 namespace rybank.Controllers
@@ -26,6 +27,24 @@ namespace rybank.Controllers
                 var createChave = await _pixService.CreatePix(dto.Email.Trim(), dto.TipoChave, dto.ValorChave);
 
                 return Ok(createChave);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new
+                {
+                    message = ex.Message
+                });
+            }
+        }
+
+        [HttpPost("consultar")]
+        [AllowAnonymous]
+        public async Task<IActionResult> Consultar(PixConsulteDto dto)
+        {
+            try
+            {
+                var consultSuccess = await _pixService.Consultar(dto.Email);
+                return Ok(consultSuccess);
             }
             catch (InvalidOperationException ex)
             {
