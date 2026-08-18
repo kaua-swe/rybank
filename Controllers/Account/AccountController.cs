@@ -17,6 +17,24 @@ namespace rybank.Controllers.Account
             _accountService = accountService;
         }
 
+        [HttpGet("dados/{email}")]
+        [AllowAnonymous]
+        public async Task<IActionResult> Consultar(string email)
+        {
+            try
+            {
+                var dados = await _accountService.ConsultarDados(email);
+                return Ok(dados);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new
+                {
+                    message = ex.Message
+                });
+            }
+        }
+
         [HttpPost("dados/atualizar")]
         [AllowAnonymous]
         public async Task<IActionResult> AtualizarDados(UpdateDadosDto dto)

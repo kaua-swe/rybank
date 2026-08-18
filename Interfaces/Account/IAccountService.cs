@@ -1,3 +1,4 @@
+using rybank.Dto.Account;
 using rybank.Models.Account;
 
 namespace rybank.Interfaces.Account
@@ -6,5 +7,6 @@ namespace rybank.Interfaces.Account
     {
         Task<AccountModel?> FindDadosById(Guid usuarioId);
         Task<object> AtualizarDados(string email, string? displayname, string? cpf, string? phonenumber);
+        Task<List<AccountResponseDto>> ConsultarDados(string email);
     }
 }

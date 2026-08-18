@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using rybank.Dto.Account;
 using rybank.estudo.Data;
 using rybank.estudo.Interfaces;
 using rybank.Interfaces.Account;
@@ -71,6 +72,32 @@ namespace rybank.Services.Account
                 cpfConta = cpf,
                 phoneNumber = phonenumber
             };
+        }
+
+        public async Task<List<AccountResponseDto>> ConsultarDados(string email)
+        {
+            var user = await _authService.FindByEmail(email);
+            if (user == null)
+            {
+                throw new InvalidOperationException("A conta informada não foi localizada.");
+            }
+
+            var existsDados = await FindDadosById(user.Id);
+            if (existsDados == null)
+            {
+                throw new InvalidOperationException("A conta informada não foi localizada.");
+            }
+
+            var dados = await _db.Dados.Where(ac => ac.UsuarioId == user.Id).Select(ac => new AccountResponseDto
+            {
+                Id = ac.Id,
+                DisplayName = ac.DisplayName,
+                CPF = ac.CPF,
+                PhoneNumber = ac.PhoneNumber,
+                CreatedAt = ac.CreatedAt
+            }).ToListAsync();
+
+            return dados;
         }
     }
 }
