@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using rybank.Models;
+using rybank.Models.Account;
 
 namespace rybank.estudo.Models
 {
@@ -22,6 +23,8 @@ namespace rybank.estudo.Models
         public string Senha { get; set; } = string.Empty;
 
         public SaldoModel? Saldo { get; set; }
+
+        public AccountModel? Dados { get; set; }
 
         [InverseProperty("Usuario")]
         public List<DepositModel> Deposito { get; set; } = new();

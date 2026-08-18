@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using rybank.estudo.Data;
 using rybank.estudo.Interfaces;
 using rybank.estudo.Models;
+using rybank.Models.Account;
 
 namespace rybank.estudo.Services
 {
@@ -40,6 +41,15 @@ namespace rybank.estudo.Services
             };
 
             _db.Users.Add(user);
+
+            var dadosUser = new AccountModel
+            {
+                UsuarioId = user.Id,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            _db.Dados.Add(dadosUser);
+
             await _db.SaveChangesAsync();
 
             return new

@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using rybank.estudo.Models;
 using rybank.Models;
+using rybank.Models.Account;
 
 namespace rybank.estudo.Data
 {
@@ -9,6 +10,8 @@ namespace rybank.estudo.Data
         public AppDbContext(DbContextOptions options) : base(options) {}
 
         public DbSet<UserModel> Users { get; set; }
+
+        public DbSet<AccountModel> Dados { get; set; }
 
         public DbSet<SaldoModel> Saldo { get; set; }
 
@@ -21,5 +24,6 @@ namespace rybank.estudo.Data
         public DbSet<BoletoModel> Boleto { get; set; }
 
         public DbSet<PixModel> Pix { get; set; }
+
     }
 }
