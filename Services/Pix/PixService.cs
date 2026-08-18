@@ -8,6 +8,7 @@ using rybank.Enums;
 using rybank.estudo.Data;
 using rybank.estudo.Interfaces;
 using rybank.Interfaces;
+using rybank.Interfaces.Account;
 using rybank.Models;
 
 namespace rybank.Services
@@ -16,11 +17,13 @@ namespace rybank.Services
     {
         private readonly AppDbContext _db;
         private readonly IAuthService _authService;
+        private readonly IAccountService _accountService;
 
-        public PixService(AppDbContext db, IAuthService authService)
+        public PixService(AppDbContext db, IAuthService authService, IAccountService accountService)
         {
             _db = db;
             _authService = authService;
+            _accountService = accountService;
         }
 
         public async Task<PixModel?> FindPixById(Guid usuarioId)
@@ -52,6 +55,17 @@ namespace rybank.Services
                 throw new InvalidOperationException("Não encontrado a conta para cadastro da chave.");
             }
 
+            var existsDados = await _accountService.FindDadosById(user.Id);
+            if (existsDados == null)
+            {
+                throw new InvalidOperationException("Esta conta não possui informações para cadastrar chaves Pix.");
+            }
+
+            if (existsDados.CPF == null || existsDados.Email == null)
+            {
+                throw new InvalidOperationException("Esta conta não possui informações para cadastrar chaves Pix.");
+            }
+
             var tipoJaCadastrado = await _db.Pix.AnyAsync(pix => pix.UsuarioId == user.Id && pix.TipoChave == tipo);
 
             if (tipoJaCadastrado)
@@ -59,16 +73,35 @@ namespace rybank.Services
                 throw new InvalidOperationException($"A conta já possui o tipo {tipo} cadastrado.");
             }
 
+            string chave;
+            if (valorChave.Equals("CPF", StringComparison.OrdinalIgnoreCase))
+            {
+                if(string.IsNullOrWhiteSpace(existsDados.CPF))
+                {
+                    throw new InvalidOperationException("A conta não possui CPF cadastrado.");
+                }
+                chave = existsDados.CPF;
+            } else if (valorChave.Equals("Email", StringComparison.OrdinalIgnoreCase))
+            {
+                if(string.IsNullOrWhiteSpace(existsDados.Email))
+                {
+                    throw new InvalidOperationException("A conta não possui email cadastrado.");
+                }
+                chave = existsDados.Email;
+            } else
+            {
+                throw new InvalidOperationException("Valor de chave inválido.");
+            }
+
             var newChave = new PixModel
             {
                 UsuarioId = user.Id,
-                Chave = valorChave,
+                Chave = chave,
                 TipoChave = tipo,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
             };
-
-            _db.Pix.Add(newChave);
+            
             await _db.SaveChangesAsync();
 
             return new

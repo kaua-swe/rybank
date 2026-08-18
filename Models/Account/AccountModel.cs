@@ -14,6 +14,9 @@ namespace rybank.Models.Account
         [Required]
         public Guid UsuarioId { get; set;}
 
+        [Required]
+        public string Email { get; set; } = string.Empty;
+
         public string? DisplayName { get; set; }
 
         public string? CPF { get; set; }

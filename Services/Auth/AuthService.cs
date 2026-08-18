@@ -45,6 +45,7 @@ namespace rybank.estudo.Services
             var dadosUser = new AccountModel
             {
                 UsuarioId = user.Id,
+                Email = email,
                 CreatedAt = DateTime.UtcNow
             };
 
