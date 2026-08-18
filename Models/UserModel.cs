@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using rybank.Models;
 
 namespace rybank.estudo.Models
 {
@@ -36,6 +37,9 @@ namespace rybank.estudo.Models
 
         [InverseProperty("Usuario")]
         public List<BoletoModel> Boleto { get; set; } = new();
+
+        [InverseProperty("Usuario")]
+        public List<PixModel> Pix { get; set; } = new();
         
     }
 }

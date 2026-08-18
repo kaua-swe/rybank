@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using rybank.estudo.Models;
+using rybank.Models;
 
 namespace rybank.estudo.Data
 {
@@ -18,5 +19,7 @@ namespace rybank.estudo.Data
         public DbSet<MovimentacaoModel> Movimentacao { get; set; }
 
         public DbSet<BoletoModel> Boleto { get; set; }
+
+        public DbSet<PixModel> Pix { get; set; }
     }
 }

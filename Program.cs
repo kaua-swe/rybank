@@ -2,6 +2,8 @@ using Microsoft.EntityFrameworkCore;
 using rybank.estudo.Data;
 using rybank.estudo.Interfaces;
 using rybank.estudo.Services;
+using rybank.Interfaces;
+using rybank.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +18,7 @@ builder.Services.AddDbContext<AppDbContext>( options =>
 builder.Services.AddControllers();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IBankService, BankService>();
+builder.Services.AddScoped<IPixService, PixService>();
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
