@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using rybank.Dto;
 using rybank.estudo.Dto;
 using rybank.estudo.Interfaces;
 
@@ -85,7 +86,7 @@ namespace rybank.estudo.Controllers
             }
         }
 
-        [HttpPost("gerarboleto")]
+        [HttpPost("gerar/boleto")]
         [AllowAnonymous]
         public async Task<IActionResult> GerarBoleto(GenerateBoletoDto dto)
         {
@@ -109,7 +110,7 @@ namespace rybank.estudo.Controllers
             }
         }
 
-        [HttpPost("pagarboleto")]
+        [HttpPost("boleto")]
         [AllowAnonymous]
         public async Task<IActionResult> PagarBoleto(PayBoletoDto dto)
         {
@@ -122,6 +123,27 @@ namespace rybank.estudo.Controllers
 
                 return Ok(boletoPago);
 
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new
+                {
+                    message = ex.Message
+                });
+            }
+        }
+
+        [HttpPost("boleto/cancelar")]
+        [AllowAnonymous]
+        public async Task<IActionResult> BoletoCancelar(CancellBoletoDto dto)
+        {
+            try
+            {
+                var codigo = dto.Codigo;
+
+                var boletoCancelado = await _bankService.CancelarBoleto(codigo);
+
+                return Ok(boletoCancelado);
             }
             catch (InvalidOperationException ex)
             {

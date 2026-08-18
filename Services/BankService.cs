@@ -336,5 +336,35 @@ namespace rybank.estudo.Services
                 saldoAtual = saldoConta.Saldo
             };
         }
+
+        public async Task<object> CancelarBoleto(string codigo)
+        {
+            var boleto = await FindNumberBoleto(codigo);
+            var utcnow = DateTime.UtcNow;
+
+            if (boleto == null)
+            {
+                throw new InvalidOperationException("Não encontrado o boleto para cancelar.");
+            }
+
+            if (boleto.Status != StatusBoletoEnum.Pendente)
+            {
+                throw new InvalidOperationException("Este boleto nao pode ser cancelado.");
+            }
+
+            boleto.Status = StatusBoletoEnum.Cancelado;
+            boleto.UpdatedAt = utcnow;
+
+            return new
+            {
+                boleto.Codigo,
+                boleto.DevedorId,
+                boleto.ValorBoleto,
+                boleto.Status,
+                boleto.PayedAt,
+                boleto.CreatedAt,
+                boleto.UpdatedAt
+            };
+        }
     }
 }

@@ -11,5 +11,6 @@ namespace rybank.estudo.Interfaces
         Task<object> GerarBoleto(string empresa, string devedor, decimal valor, int vencimento);
         Task<object> PagarBoleto(string conta, string codigo);
         Task<BoletoModel> VerifiyStatusBoleto(BoletoModel boleto);
+        Task<object> CancelarBoleto(string codio);
     }
 }

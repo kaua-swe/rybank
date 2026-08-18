@@ -22,7 +22,9 @@ namespace rybank.estudo.Models
         [Required]
         public decimal ValorBoleto { get; set; } = 0.00m;
 
+        [Required]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime UpdatedAt { get; set; }
 
         public DateTime Maturity { get; set; }
 
