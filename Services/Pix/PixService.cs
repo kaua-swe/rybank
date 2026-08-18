@@ -110,5 +110,38 @@ namespace rybank.Services
 
             return chaves;
         }
+
+        public async Task<object> Deletar(string email, string tipoChave)
+        {
+            var user = await _authService.FindByEmail(email);
+            if (user == null)
+            {
+                throw new InvalidOperationException("Não encontrada a conta.");
+            }
+
+            var existsPix = await FindPixById(user.Id);
+
+            if (existsPix == null)
+            {
+                throw new InvalidOperationException("Não encontrada a conta.");
+            }
+
+            var tipo = VerificarTipoChave(tipoChave);
+
+            var tipoJaCadastrado = await _db.Pix.AnyAsync(pix => pix.UsuarioId == user.Id && pix.TipoChave == tipo);
+
+            if (!tipoJaCadastrado)
+            {
+                throw new InvalidOperationException("Não encontrada o tipo de chave cadastrada.");
+            }
+
+            _db.Pix.Remove(existsPix);
+            await _db.SaveChangesAsync();
+
+            return new
+            {
+                message = "Removido a chave da conta"
+            };
+        }
     }
 }

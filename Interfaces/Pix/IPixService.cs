@@ -10,5 +10,6 @@ namespace rybank.Interfaces
         ChavePixEnum VerificarTipoChave(string chave);
         Task<object> CreatePix(string email, string tipoChave, string valorChave);
         Task<List<PixResponseDto>> Consultar(string email);
+        Task<object> Deletar(string email, string tipoChave);
     }
 }

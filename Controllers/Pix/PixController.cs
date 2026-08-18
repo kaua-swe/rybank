@@ -37,14 +37,31 @@ namespace rybank.Controllers
             }
         }
 
-        [HttpPost("consultar")]
+        [HttpGet("consultar/{email}")]
         [AllowAnonymous]
-        public async Task<IActionResult> Consultar(PixConsulteDto dto)
+        public async Task<IActionResult> Consultar(string email)
         {
             try
             {
-                var consultSuccess = await _pixService.Consultar(dto.Email);
+                var consultSuccess = await _pixService.Consultar(email);
                 return Ok(consultSuccess);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new
+                {
+                    message = ex.Message
+                });
+            }
+        }
+
+        [HttpPost("deletar/chave")]
+        public async Task<IActionResult> Deletar(PixDeleteDto dto)
+        {
+            try
+            {
+                var deleteSuccess = await _pixService.Deletar(dto.Email, dto.TipoChave);
+                return Ok(deleteSuccess);
             }
             catch (InvalidOperationException ex)
             {
