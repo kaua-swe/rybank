@@ -70,7 +70,7 @@ namespace rybank.estudo.Controllers
             try
             {
                 var origemEmail = dto.Origem.Trim();
-                var destinoEmail = dto.Destino.Trim();
+                var destinoEmail = dto.Destino;
                 var tipo = dto.Tipo.ToString();
                 var chave = dto.Chave;
                 var valor = dto.Valor;

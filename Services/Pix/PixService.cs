@@ -44,6 +44,13 @@ namespace rybank.Services
             return tipo;
         }
 
+        public async Task<PixModel?> FindChave(string chave)
+        {
+            var existsChave = await _db.Pix.FirstOrDefaultAsync(p => p.Chave == chave);
+            
+            return existsChave;
+        }
+
         public async Task<object> CreatePix(string email, string tipoChave, string valorChave)
         {
             var tipo = VerificarTipoChave(tipoChave);

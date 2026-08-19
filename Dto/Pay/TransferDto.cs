@@ -6,7 +6,7 @@ namespace rybank.estudo.Dto
     {
         public string Origem { get; set; } = string.Empty;
         public TipoPagamento Tipo { get; set; }
-        public string Destino { get; set; } = string.Empty;
+        public string? Destino { get; set; }
         public string? Chave { get; set; }
         public decimal Valor { get; set; } = 0.00m;
     }

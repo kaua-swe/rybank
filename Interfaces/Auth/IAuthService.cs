@@ -7,5 +7,6 @@ namespace rybank.estudo.Interfaces
         Task<UserModel?> FindByEmail(string email);
         Task<object> CreateUser(string nome, string email, string password);
         Task<object> Authentication(string email, string password);
+        Task<UserModel?> FindByEmailForId(Guid usuarioId);
     }
 }

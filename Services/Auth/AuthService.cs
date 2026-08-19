@@ -21,6 +21,12 @@ namespace rybank.estudo.Services
             return userAlreadyExists;
         }
 
+        public async Task<UserModel?> FindByEmailForId(Guid usuarioId)
+        {
+            var userAlreadyExists = await _db.Users.FirstOrDefaultAsync(user => user.Id == usuarioId);
+            return userAlreadyExists;
+        }
+
         public async Task<object> CreateUser(string nome, string email, string password)
         {
 

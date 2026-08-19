@@ -5,6 +5,7 @@ using rybank.estudo.Data;
 using rybank.estudo.Enums;
 using rybank.estudo.Interfaces;
 using rybank.estudo.Models;
+using rybank.Interfaces;
 using rybank.Interfaces.Account;
 using rybank.Services.Account;
 
@@ -15,12 +16,14 @@ namespace rybank.estudo.Services
         private readonly AppDbContext _db;
         private readonly IAuthService _authService;
         private readonly IAccountService _accountService;
+        private readonly IPixService _pixService;
 
-        public BankService(AppDbContext db, IAuthService authService, IAccountService accountService)
+        public BankService(AppDbContext db, IAuthService authService, IAccountService accountService, IPixService pixService)
         {
             _db = db;
             _authService = authService;
             _accountService = accountService;
+            _pixService = pixService;
         }
 
         public async Task<SaldoModel?> FindSaldoById(Guid usuarioId)
@@ -153,7 +156,7 @@ namespace rybank.estudo.Services
             };
         }
 
-        public async Task<object> Transferir(string origem, string tipo, string destino, string? chave, decimal valor)
+        public async Task<object> Transferir(string origem, string tipo, string? destino, string? chave, decimal valor)
         {
 
             if (valor <= 0)
@@ -167,53 +170,72 @@ namespace rybank.estudo.Services
             }
             var utcnow = DateTime.UtcNow;
             var existsOrigem = await _authService.FindByEmail(origem);
-            var existsDestino = await _authService.FindByEmail(destino);
 
 
-            if (existsOrigem == null || existsDestino == null)
+            if (existsOrigem == null)
             {
+
                 throw new InvalidOperationException("Não encontrado a origem ou destino.");
-            }
 
-            var saldoOrigem = await FindSaldoById(existsOrigem.Id);
-            var saldoDestino = await FindSaldoById(existsDestino.Id);
-
-            if (saldoOrigem == null || saldoDestino == null)
-            {
-                throw new InvalidOperationException("Carteira da origem ou destino não encontrada.");
-            }
-
-            if (valor > saldoOrigem.Saldo)
-            {
-                throw new InvalidOperationException("A conta de origem não possui saldo suficiente.");
             }
 
             if (tipo == TipoPagamento.PIX.ToString())
             {
-                var existsContaDestino = await _accountService.FindDadosById(existsDestino.Id);
-                if (existsContaDestino == null)
-                {
-                    throw new InvalidOperationException("Esta conta não está disponível para pagamentos via PIX.");
-                }
-                if (existsContaDestino.CPF == null)
-                {
-                    throw new InvalidOperationException("Esta conta não possui chave pix cadastrada.");
-                }
                 if (chave == null)
                 {
-                    throw new InvalidOperationException("Você não informou a chave do destino.");
+                    throw new InvalidOperationException("Não foi informado a chave pix.");
                 }
-                if (chave != existsContaDestino.CPF)
+                var descobrirPix = await _pixService.FindChave(chave);
+                if (descobrirPix == null)
                 {
-                    throw new InvalidOperationException("A chave informada não é igual a da conta de destino.");
+                    throw new InvalidOperationException("Não foi encontrado a chave pix.");
+                }
+                var saldoOrigem = await FindSaldoById(existsOrigem.Id);
+                var saldoDestino = await FindSaldoById(descobrirPix.UsuarioId);
+                if (saldoOrigem == null || saldoDestino == null)
+                {
+                    throw new InvalidOperationException("Carteira da origem ou destino não encontrada.");
+                }
+                if (valor > saldoOrigem.Saldo)
+                {
+                    throw new InvalidOperationException("A conta de origem não possui saldo suficiente.");
                 }
                 saldoOrigem.Saldo -= valor;
                 saldoDestino.Saldo += valor;
                 saldoOrigem.UpdatedAt = utcnow;
                 saldoDestino.UpdatedAt = utcnow;
 
-            }
 
+                var movimentacaoDestino = new MovimentacaoModel
+                {
+
+                    UsuarioId = descobrirPix.UsuarioId,
+                    Valor = valor,
+                    Tipo = TipoMovimentacaoEnum.TransRecebida
+                };
+                _db.Movimentacao.Add(movimentacaoDestino);
+
+                var movimentacaoOrigem = new MovimentacaoModel
+                {
+                    UsuarioId = existsOrigem.Id,
+                    Valor = valor,
+                    Tipo = TipoMovimentacaoEnum.TransEnviada
+                };
+
+                _db.Movimentacao.Add(movimentacaoOrigem);
+
+                await _db.SaveChangesAsync();
+
+                var emailDestino = await _authService.FindByEmailForId(descobrirPix.UsuarioId);
+
+                return new
+                {
+                    origem = existsOrigem.Email,
+                    destino = emailDestino!.Email,
+                    newSaldoOrigem = saldoOrigem.Saldo,
+                    newSaldoDestino = saldoDestino.Saldo  
+                };
+            }
             if (tipo == TipoPagamento.TED.ToString())
             {
                 return new
@@ -221,43 +243,7 @@ namespace rybank.estudo.Services
                     message = "Ok"
                 };
             }
-
-            var transferencia = new TransferenciaModel
-            {
-                OrigemUserId = existsOrigem.Id,
-                DestinoUserId = existsDestino.Id,
-                Valor = valor,
-                CreatedAt = utcnow
-            };
-
-            _db.Transferencias.Add(transferencia);
-
-            var movimentacaoOrigem = new MovimentacaoModel
-            {
-                UsuarioId = existsOrigem.Id,
-                Valor = valor,
-                Tipo = TipoMovimentacaoEnum.TransEnviada
-            };
-
-            var movimentacaoDestino = new MovimentacaoModel
-            {
-                UsuarioId = existsDestino.Id,
-                Valor = valor,
-                Tipo = TipoMovimentacaoEnum.TransRecebida
-            };
-
-            _db.Movimentacao.Add(movimentacaoOrigem);
-            _db.Movimentacao.Add(movimentacaoDestino);
-
-            await _db.SaveChangesAsync();
-
-            return new
-            {
-              origem = existsOrigem.Email,
-              destino = existsDestino.Email,
-              newSaldoOrigem = saldoOrigem.Saldo,
-              newSaldoDestino = saldoDestino.Saldo  
-            };
+            throw new InvalidOperationException("Tipo de pagamento inválido.");
         }
 
         public async Task<object> GerarBoleto(string empresa, string devedor, decimal valor, int vencimento)

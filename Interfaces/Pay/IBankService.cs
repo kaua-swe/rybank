@@ -7,7 +7,7 @@ namespace rybank.estudo.Interfaces
         Task<SaldoModel?> FindSaldoById(Guid usuarioId);
         Task<object> Deposito(string email, decimal valor);
         Task<object> Sacar(string email, decimal valor);
-        Task<object> Transferir(string origem, string tipo, string destino, string? chave, decimal valor);
+        Task<object> Transferir(string origem, string tipo, string? destino, string? chave, decimal valor);
         Task<object> GerarBoleto(string empresa, string devedor, decimal valor, int vencimento);
         Task<object> PagarBoleto(string conta, string codigo);
         Task<BoletoModel> VerifiyStatusBoleto(BoletoModel boleto);
