@@ -74,14 +74,14 @@ namespace rybank.Services
             }
 
             string chave;
-            if (valorChave.Equals("CPF", StringComparison.OrdinalIgnoreCase))
+            if (tipo == ChavePixEnum.CPF)
             {
                 if(string.IsNullOrWhiteSpace(existsDados.CPF))
                 {
                     throw new InvalidOperationException("A conta não possui CPF cadastrado.");
                 }
                 chave = existsDados.CPF;
-            } else if (valorChave.Equals("Email", StringComparison.OrdinalIgnoreCase))
+            } else if (tipo == ChavePixEnum.Email)
             {
                 if(string.IsNullOrWhiteSpace(existsDados.Email))
                 {
@@ -102,6 +102,8 @@ namespace rybank.Services
                 UpdatedAt = DateTime.UtcNow
             };
             
+            _db.Pix.Add(newChave);
+
             await _db.SaveChangesAsync();
 
             return new

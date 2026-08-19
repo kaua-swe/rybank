@@ -1,10 +1,12 @@
 using System.Security.Cryptography;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
+using rybank.Enums.Pay;
 using rybank.estudo.Data;
 using rybank.estudo.Enums;
 using rybank.estudo.Interfaces;
 using rybank.estudo.Models;
+using rybank.Interfaces.Account;
+using rybank.Services.Account;
 
 namespace rybank.estudo.Services
 {
@@ -12,11 +14,13 @@ namespace rybank.estudo.Services
     {
         private readonly AppDbContext _db;
         private readonly IAuthService _authService;
+        private readonly IAccountService _accountService;
 
-        public BankService(AppDbContext db, IAuthService authService)
+        public BankService(AppDbContext db, IAuthService authService, IAccountService accountService)
         {
             _db = db;
             _authService = authService;
+            _accountService = accountService;
         }
 
         public async Task<SaldoModel?> FindSaldoById(Guid usuarioId)
@@ -149,7 +153,7 @@ namespace rybank.estudo.Services
             };
         }
 
-        public async Task<object> Transferir(string origem, string destino, decimal valor)
+        public async Task<object> Transferir(string origem, string tipo, string destino, string? chave, decimal valor)
         {
 
             if (valor <= 0)
@@ -183,10 +187,40 @@ namespace rybank.estudo.Services
             {
                 throw new InvalidOperationException("A conta de origem não possui saldo suficiente.");
             }
-            saldoOrigem.Saldo -= valor;
-            saldoDestino.Saldo += valor;
-            saldoOrigem.UpdatedAt = utcnow;
-            saldoDestino.UpdatedAt = utcnow;
+
+            if (tipo == TipoPagamento.PIX.ToString())
+            {
+                var existsContaDestino = await _accountService.FindDadosById(existsDestino.Id);
+                if (existsContaDestino == null)
+                {
+                    throw new InvalidOperationException("Esta conta não está disponível para pagamentos via PIX.");
+                }
+                if (existsContaDestino.CPF == null)
+                {
+                    throw new InvalidOperationException("Esta conta não possui chave pix cadastrada.");
+                }
+                if (chave == null)
+                {
+                    throw new InvalidOperationException("Você não informou a chave do destino.");
+                }
+                if (chave != existsContaDestino.CPF)
+                {
+                    throw new InvalidOperationException("A chave informada não é igual a da conta de destino.");
+                }
+                saldoOrigem.Saldo -= valor;
+                saldoDestino.Saldo += valor;
+                saldoOrigem.UpdatedAt = utcnow;
+                saldoDestino.UpdatedAt = utcnow;
+
+            }
+
+            if (tipo == TipoPagamento.TED.ToString())
+            {
+                return new
+                {
+                    message = "Ok"
+                };
+            }
 
             var transferencia = new TransferenciaModel
             {

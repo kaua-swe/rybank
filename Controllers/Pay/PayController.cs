@@ -71,9 +71,12 @@ namespace rybank.estudo.Controllers
             {
                 var origemEmail = dto.Origem.Trim();
                 var destinoEmail = dto.Destino.Trim();
+                var tipo = dto.Tipo.ToString();
+                var chave = dto.Chave;
                 var valor = dto.Valor;
+                
 
-                var valorTransferido = await _bankService.Transferir(origemEmail, destinoEmail, valor);
+                var valorTransferido = await _bankService.Transferir(origemEmail, tipo, destinoEmail, chave, valor);
 
                 return Ok(valorTransferido);
             }
