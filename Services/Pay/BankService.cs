@@ -1,5 +1,6 @@
 using System.Security.Cryptography;
 using Microsoft.EntityFrameworkCore;
+using rybank.Dto.Pay;
 using rybank.Enums.Pay;
 using rybank.estudo.Data;
 using rybank.estudo.Enums;
@@ -42,6 +43,12 @@ namespace rybank.estudo.Services
                 await _db.SaveChangesAsync();
             }
             return boleto;
+        }
+
+        public async Task<TransferenciaModel?> FindTransferById(Guid usuarioId)
+        {
+            var user = await _db.Transferencias.FirstOrDefaultAsync(u => u.OrigemUserId == usuarioId);
+            return user;
         }
 
         public async Task<object> Deposito(string email, decimal valor)
@@ -224,6 +231,16 @@ namespace rybank.estudo.Services
 
                 _db.Movimentacao.Add(movimentacaoOrigem);
 
+                var transferencias = new TransferenciaModel
+                {
+                    OrigemUserId = saldoOrigem.UsuarioId,
+                    DestinoUserId = saldoDestino.UsuarioId,
+                    Valor = valor,
+                    CreatedAt = utcnow
+                };
+
+                _db.Transferencias.Add(transferencias);
+
                 await _db.SaveChangesAsync();
 
                 var emailDestino = await _authService.FindByEmailForId(descobrirPix.UsuarioId);
@@ -385,6 +402,30 @@ namespace rybank.estudo.Services
                 boleto.CreatedAt,
                 boleto.UpdatedAt
             };
+        }
+
+        public async Task<List<TransferResponseDto>> ListarTransferencias(string email)
+        {
+            var user = await _authService.FindByEmail(email);
+            if (user == null)
+            {
+                throw new InvalidOperationException("Não encontrado o email informado.");
+            }
+            var existsTrans = await FindTransferById(user.Id);
+            if (existsTrans == null)
+            {
+                throw new InvalidOperationException("Não encontrado transferências.");
+            }
+            var trans = await _db.Transferencias.Where(d => d.OrigemUserId == user.Id).Select(u => new TransferResponseDto
+            {
+                Id = u.Id,
+                OrigemUserId = u.OrigemUserId,
+                DestinoUserId = u.DestinoUserId,
+                Valor = u.Valor,
+                CreatedAt = u.CreatedAt
+            }).ToListAsync();
+
+            return trans;
         }
     }
 }

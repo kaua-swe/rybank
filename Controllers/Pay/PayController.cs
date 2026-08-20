@@ -156,5 +156,23 @@ namespace rybank.estudo.Controllers
                 });
             }
         }
+
+        [HttpGet("transferencias/{email}")]
+        [AllowAnonymous]
+        public async Task<IActionResult> ConsultarTransferencias(string email)
+        {
+            try
+            {
+                var successResult = await _bankService.ListarTransferencias(email);
+                return Ok(successResult);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new
+                {
+                    message = ex.Message
+                });
+            }
+        }
     }
 }
