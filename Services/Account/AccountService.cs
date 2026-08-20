@@ -2,7 +2,6 @@ using Microsoft.EntityFrameworkCore;
 using rybank.Dto.Account;
 using rybank.estudo.Data;
 using rybank.estudo.Interfaces;
-using rybank.Interfaces;
 using rybank.Interfaces.Account;
 using rybank.Models.Account;
 
@@ -34,12 +33,13 @@ namespace rybank.Services.Account
                 throw new InvalidOperationException("Não encontrada a conta informada.");
             }
 
-            if (cpf != null)
+            if (cpf != null || phonenumber != null)
             {
                 var existsCpf = await _db.Dados.FirstOrDefaultAsync(d => d.CPF == cpf);
-                if (existsCpf != null)
+                var existsNumber = await _db.Dados.FirstOrDefaultAsync(n => n.PhoneNumber == phonenumber);
+                if (existsCpf != null || existsNumber != null)
                 {
-                    throw new InvalidOperationException("Já possui uma conta utilizando este CPF.");
+                    throw new InvalidOperationException("Já está sendo utilizado estes dados.");
                 }
             }
 
