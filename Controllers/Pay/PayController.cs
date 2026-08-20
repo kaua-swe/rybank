@@ -174,5 +174,23 @@ namespace rybank.estudo.Controllers
                 });
             }
         }
+
+        [HttpGet("movimentacoes/{email}")]
+        [AllowAnonymous]
+        public async Task<IActionResult> ConsultarMovimentacoes(string email)
+        {
+            try
+            {
+                var successResult = await _bankService.ListarMovimentacoes(email);
+                return Ok(successResult);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new
+                {
+                    message = ex.Message
+                });
+            }
+        }
     }
 }

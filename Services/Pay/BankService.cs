@@ -427,5 +427,22 @@ namespace rybank.estudo.Services
 
             return trans;
         }
+
+        public async Task<List<MovimentacaoResponseDto>> ListarMovimentacoes(string email)
+        {
+            var user = await _authService.FindByEmail(email);
+            if (user == null)
+            {
+                throw new InvalidOperationException("Não foi encontrado o e-mail informado.");
+            }
+            var existsMovimentacoes = await _db.Movimentacao.Where(m => m.UsuarioId == user.Id).Select(m => new MovimentacaoResponseDto{
+                Id = m.Id,
+                UsuarioId = m.UsuarioId,
+                Valor = m.Valor,
+                Tipo = m.Tipo.ToString()
+            }).ToListAsync();
+            
+            return existsMovimentacoes;
+        }
     }
 }

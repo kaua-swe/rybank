@@ -15,6 +15,7 @@ namespace rybank.estudo.Interfaces
         Task<object> PagarBoleto(string conta, string codigo);        
         Task<object> CancelarBoleto(string codigo);
         Task<List<TransferResponseDto>> ListarTransferencias(string email);
+        Task<List<MovimentacaoResponseDto>> ListarMovimentacoes(string email);
         
     }
 }
