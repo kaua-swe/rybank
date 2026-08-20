@@ -43,7 +43,8 @@ namespace rybank.estudo.Services
             {
                 Name = nome,
                 Email = email,
-                Senha = passwordHash
+                Senha = passwordHash,
+                CreatedAt = DateTime.UtcNow
             };
 
             _db.Users.Add(user);

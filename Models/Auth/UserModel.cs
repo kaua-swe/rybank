@@ -22,6 +22,8 @@ namespace rybank.estudo.Models
         [MinLength(8)]
         public string Senha { get; set; } = string.Empty;
 
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
         public SaldoModel? Saldo { get; set; }
 
         public AccountModel? Dados { get; set; }
