@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using rybank.Dto.Pix;
 using rybank.Enums;
@@ -51,7 +47,7 @@ namespace rybank.Services
             return existsChave;
         }
 
-        public async Task<object> CreatePix(string email, string tipoChave, string valorChave)
+        public async Task<object> CreatePix(string email, string tipoChave)
         {
             var tipo = VerificarTipoChave(tipoChave);
 
@@ -165,7 +161,7 @@ namespace rybank.Services
 
             if (existsPix == null)
             {
-                throw new InvalidOperationException("Não encontrada a conta.");
+                throw new InvalidOperationException("Não encontrada o pix.");
             }
 
             var tipo = VerificarTipoChave(tipoChave);

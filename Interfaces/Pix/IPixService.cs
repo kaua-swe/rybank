@@ -8,7 +8,7 @@ namespace rybank.Interfaces
     {
         Task<PixModel?> FindPixById(Guid usuarioId);
         ChavePixEnum VerificarTipoChave(string chave);
-        Task<object> CreatePix(string email, string tipoChave, string valorChave);
+        Task<object> CreatePix(string email, string tipoChave);
         Task<List<PixResponseDto>> Consultar(string email);
         Task<object> Deletar(string email, string tipoChave);
         Task<PixModel?> FindChave(string chave);

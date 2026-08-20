@@ -24,7 +24,7 @@ namespace rybank.Controllers
         {
             try
             {
-                var createChave = await _pixService.CreatePix(dto.Email.Trim(), dto.TipoChave, dto.ValorChave);
+                var createChave = await _pixService.CreatePix(dto.Email.Trim(), dto.TipoChave);
 
                 return Ok(createChave);
             }
