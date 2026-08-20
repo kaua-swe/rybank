@@ -190,6 +190,10 @@ namespace rybank.estudo.Services
                 {
                     throw new InvalidOperationException("Não foi encontrado a chave pix.");
                 }
+                if (descobrirPix.UsuarioId == existsOrigem.Id)
+                {
+                    throw new InvalidOperationException("Não pode transferir para si mesmo.");
+                }
                 var saldoOrigem = await FindSaldoById(existsOrigem.Id);
                 var saldoDestino = await FindSaldoById(descobrirPix.UsuarioId);
                 if (saldoOrigem == null || saldoDestino == null)
