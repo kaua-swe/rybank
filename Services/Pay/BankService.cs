@@ -6,8 +6,6 @@ using rybank.estudo.Enums;
 using rybank.estudo.Interfaces;
 using rybank.estudo.Models;
 using rybank.Interfaces;
-using rybank.Interfaces.Account;
-using rybank.Services.Account;
 
 namespace rybank.estudo.Services
 {
@@ -15,14 +13,12 @@ namespace rybank.estudo.Services
     {
         private readonly AppDbContext _db;
         private readonly IAuthService _authService;
-        private readonly IAccountService _accountService;
         private readonly IPixService _pixService;
 
-        public BankService(AppDbContext db, IAuthService authService, IAccountService accountService, IPixService pixService)
+        public BankService(AppDbContext db, IAuthService authService, IPixService pixService)
         {
             _db = db;
             _authService = authService;
-            _accountService = accountService;
             _pixService = pixService;
         }
 
