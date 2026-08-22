@@ -22,5 +22,18 @@ namespace src.Data
         public DbSet<MovementModel> Movement { get; set; }
         public DbSet<TicketModel> Ticket { get; set; }
 
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<UserModel>().HasIndex(u => u.Email).IsUnique();
+            modelBuilder.Entity<AccountModel>().HasIndex(c => c.CPF).IsUnique();
+            modelBuilder.Entity<BalanceModel>().HasIndex(u => new {u.UsuarioId, u.Conta} ).IsUnique();
+            modelBuilder.Entity<WalletModel>().HasIndex(u => new {u.UsuarioId, u.Conta} ).IsUnique();
+            modelBuilder.Entity<PixModel>().HasIndex(p => p.Chave).IsUnique();
+            modelBuilder.Entity<TicketModel>().HasIndex(t => t.Codigo).IsUnique();
+
+        }
+
     }
 }
